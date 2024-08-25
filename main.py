@@ -1,18 +1,10 @@
-"""
-PiicoDev Accelerometer LIS3DH
-Simple example to infer tilt-angle from acceleration data
-"""
-
 from PiicoDev_LIS3DH import PiicoDev_LIS3DH
-from PiicoDev_Unified import sleep_ms # cross-platform compatible sleep function
+from PiicoDev_Unified import sleep_ms
+import machine
 
+# Initialize the LIS3DH sensor and UART (serial) communication
 motion = PiicoDev_LIS3DH()
-
-# Example function to send a command to Windows
-def rotate_display_on_windows(orientation):
-    # Here you would send a command to rotate the display based on `orientation`
-    # This could be through a serial port or using keyboard emulation
-    pass
+uart = machine.UART(0, baudrate=115200)  # UART0 for serial communication
 
 def get_orientation(x, y, z):
     if abs(x) > 45:  # Landscape mode
@@ -36,8 +28,7 @@ while True:
     
     if orientation != last_orientation:
         print("Orientation changed:", orientation)
-        rotate_display_on_windows(orientation)  # Call your function here
+        uart.write(orientation + "\n")  # Send orientation to PC
         last_orientation = orientation
     
     sleep_ms(50)
-

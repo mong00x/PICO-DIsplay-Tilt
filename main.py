@@ -1,20 +1,43 @@
-import ctypes
+"""
+PiicoDev Accelerometer LIS3DH
+Simple example to infer tilt-angle from acceleration data
+"""
+
 from PiicoDev_LIS3DH import PiicoDev_LIS3DH
 from PiicoDev_Unified import sleep_ms # cross-platform compatible sleep function
 
-def rotate_display(angle):
-    # 0: Landscape
-    # 1: Portrait (Flipped 90 degrees clockwise)
-    # 2: Landscape (Flipped 180 degrees)
-    # 3: Portrait (Flipped 270 degrees)
-    angle_mapping = {
-        0: 0,
-        90: 1,
-        180: 2,
-        270: 3
-    }
-    ctypes.windll.user32.SetDisplayConfig(0, 0, 0, 0, 0x10 | 0x8)
-    ctypes.windll.user32.SetDisplayConfig(1, ctypes.byref(ctypes.wintypes.DEVMODE(0, angle_mapping[angle], 0)), 0, 0, 0x10 | 0x8)
+motion = PiicoDev_LIS3DH()
 
-# Example usage:
-# rotate_display(90)  # Rotate the display to 90 degrees (portrait mode)
+# Example function to send a command to Windows
+def rotate_display_on_windows(orientation):
+    # Here you would send a command to rotate the display based on `orientation`
+    # This could be through a serial port or using keyboard emulation
+    pass
+
+def get_orientation(x, y, z):
+    if abs(x) > 45:  # Landscape mode
+        if x > 0:
+            return "landscape"
+        else:
+            return "landscape_flipped"
+    elif abs(y) > 45:  # Portrait mode
+        if y > 0:
+            return "portrait"
+        else:
+            return "portrait_flipped"
+    else:
+        return "flat"
+
+last_orientation = None
+
+while True:
+    x, y, z = motion.angle
+    orientation = get_orientation(x, y, z)
+    
+    if orientation != last_orientation:
+        print("Orientation changed:", orientation)
+        rotate_display_on_windows(orientation)  # Call your function here
+        last_orientation = orientation
+    
+    sleep_ms(50)
+

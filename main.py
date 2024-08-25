@@ -1,10 +1,15 @@
 from PiicoDev_LIS3DH import PiicoDev_LIS3DH
 from PiicoDev_Unified import sleep_ms
 import machine
+import time
 
 # Initialize the LIS3DH sensor and UART (serial) communication
 motion = PiicoDev_LIS3DH()
 uart = machine.UART(0, baudrate=115200)  # UART0 for serial communication
+
+# Debounce interval in seconds
+debounce_interval = 3
+last_time = time.time()
 
 def get_orientation(x, y, z):
     if abs(x) > 45:  # Landscape mode
@@ -23,12 +28,18 @@ def get_orientation(x, y, z):
 last_orientation = None
 
 while True:
-    x, y, z = motion.angle
-    orientation = get_orientation(x, y, z)
+    current_time = time.time()
     
-    if orientation != last_orientation:
-        print("Orientation changed:", orientation)
-        uart.write(orientation + "\n")  # Send orientation to PC
-        last_orientation = orientation
+    if current_time - last_time >= debounce_interval:
+        x, y, z = motion.angle
+        orientation = get_orientation(x, y, z)
+        
+        if orientation != last_orientation:
+            print("Orientation changed:", orientation)
+            uart.write(orientation + "\n")  # Send orientation to PC
+            last_orientation = orientation
+        
+        # Update the last_time to the current time
+        last_time = current_time
     
-    sleep_ms(50)
+    sleep_ms(50)  # Small sleep to avoid excessive CPU usage

@@ -23,7 +23,7 @@ def show_popup(orientation):
     # Set window size and position
     popup.geometry(f"{window_width}x{window_height}+{x_offset}+{y_offset}")
     
-    label = tk.Label(popup, text=f"Orientation: {orientation}", font=("Helvetica", 12))
+    label = tk.Label(popup, text=f"Angle: {Angle}", font=("Helvetica", 12))
     label.pack(expand=True)
     
     # Set a timer to destroy the popup after 2-3 seconds
@@ -31,8 +31,8 @@ def show_popup(orientation):
     popup.mainloop()
 
 while True:
-    # Read orientation data from the Pico
+    # Read Angle data from the Pico
     if ser.in_waiting > 0:
-        orientation = ser.readline().decode().strip()
-        print("Orientation received:", orientation)
-        show_popup(orientation)  # Display popup with current orientation
+        Angle = ser.readline().decode().strip()
+        print("Angle received:", angle)
+        show_popup(Angle)  # Display popup with current orientation

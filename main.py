@@ -11,35 +11,41 @@ uart = machine.UART(0, baudrate=115200)  # UART0 for serial communication
 debounce_interval = 3
 last_time = time.time()
 
-def get_orientation(x, y, z):
-    if abs(x) > 45:  # Landscape mode
-        if x > 0:
-            return "landscape"
-        else:
-            return "landscape_flipped"
-    elif abs(y) > 45:  # Portrait mode
-        if y > 0:
-            return "portrait"
-        else:
-            return "portrait_flipped"
-    else:
-        return "flat"
+# Transition zone of 20 degrees
+detect_zone = 20
 
-last_orientation = None
+def get_angle(x,y,z):
+    if abs(int(z)) in range(0, 20):  # Landscape 
+        return "landscape"
+    elif int(z) in range(90 - detect_zone, 90 + detect_zone):
+        return "portrait"
+    elif abs(int(z)) in range(180 - detect_zone, 180):
+        return "landscape filpped"
+    elif int(z) in range(-90 - detect_zone, -90 + detect_zone):
+        return "portrait flipped"
+    else:
+        return "Angle in transition..." #No change within the transition zone
+
+last_angle = None
 
 while True:
     current_time = time.time()
     
     if current_time - last_time >= debounce_interval:
         x, y, z = motion.angle
-        orientation = get_orientation(x, y, z)
-        
-        if orientation != last_orientation:
-            print("Orientation changed:", orientation)
-            uart.write(orientation + "\n")  # Send orientation to PC
-            last_orientation = orientation
+        angle = get_angle(x,y,z)
+        # print("Angle: {:.0f}°".format(z)) # #monitor value in plotter
+        # print("Current angle:"+angle)
+        if angle != last_angle:
+            # print("Angle changed:")
+            print(angle)
+            uart.write(angle + "\n")  # Send orientation to PC
+            if angle = "Angle in transition...":
+                last_angle = angle
+                
         
         # Update the last_time to the current time
         last_time = current_time
     
-    sleep_ms(50)  # Small sleep to avoid excessive CPU usage
+    sleep_ms(100)  # Small sleep to avoid excessive CPU usage
+

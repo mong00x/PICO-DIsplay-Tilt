@@ -22,7 +22,7 @@ except:
 
 _R_WHOAMI = 0x0F
 _ID = 0x33
-_I2C_ADDRESS = 0x18
+_I2C_ADDRESS = 0x19
 _OUT_X_L = 0x28
 _CTRL_REG_1 = 0x20
 _CTRL_REG_2 = 0x21
